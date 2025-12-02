@@ -1,6 +1,10 @@
+#!/usr/bin/env node
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+
+import fs from "node:fs/promises"
 
 
 const server = new McpServer({
@@ -8,6 +12,7 @@ const server = new McpServer({
     version: "1.0.0",
     capabilities: {
         tools: {},
+        resources: {}
     }
 });
 
@@ -43,6 +48,40 @@ server.tool(
     }
 )
 
+server.resource(
+    "tips-para-nombrar-passwords",
+    "tips://all",
+    {
+        description: "Muestra tips de seguridad",
+        title: "Tips",
+        mimeType: "application/json",
+    }, async uri => {
+        try {
+
+            const tips = await fs.readFile('src/recursos/tips.json', "utf-8").then(res => JSON.parse(res));
+
+            return {
+                contents: [
+                    {
+                        uri: uri.href,
+                        text: JSON.stringify(tips, null, 2),
+                        mimeType: "application/json"
+                    }
+                ]
+            };
+        } catch (error) {
+            return {
+                contents: [
+                    {
+                        uri: uri.href,
+                        text: JSON.stringify({ error: error?.message ?? String(error) }),
+                        mimeType: "application/json"
+                    }
+                ]
+            };
+        }
+    }
+)
 
 function verificarPassword(params) {
     const password = params.password;
