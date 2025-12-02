@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "name": "io.github.siddharta1337/mcp-verificar-password",
+  "description": "An MCP server that provides password strength verification functionality.",
+  "repository": {
+    "url": "https://github.com/siddharta1337/mcp-verificar-password",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "mcpName": "io.github.siddharta1337/mcp-verificar-password",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@carlossolis/mcp-verificar-password",
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": []
+    }
+  ]
+}

@@ -4,106 +4,44 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-import fs from "node:fs/promises"
-
 
 const server = new McpServer({
     name: "Verificador de Contraseñas",
     version: "1.0.0",
     capabilities: {
         tools: {},
-        resources: {},
-        prompt: {}
-    }
+    },
 });
 
-server.tool(
-    "verificar-password",
-    "analiza tu password y verifica su calidad",
-    {
-        password: z.string()
-    },
-    {
-        title: "verificar password",
-        readOnlyHint: true,
-        destructiveHint: false,
-        idempotentHint: false,
-        openWorldHint: true,
-    }, (params) => {
-        try {
-            const calidad = verificarPassword(params);
-            return {
-                content: [
-                    { type: "text", text: `Tu password es de calidad ${calidad}.` }
-                ]
-            };
-        }
-        catch (error) {
-            return {
-                content: [
-                    { type: "text", text: `error : ${error?.message ?? String(error)}` }
-                ]
-            };
-        }
-
-    }
-)
-
-server.resource(
-    "tips-para-nombrar-passwords",
-    "tips://all",
-    {
-        description: "Muestra tips de seguridad",
-        title: "Tips",
-        mimeType: "application/json",
-    }, async uri => {
-        try {
-
-            const tips = await fs.readFile('src/recursos/tips.json', "utf-8").then(res => JSON.parse(res));
-
-            return {
-                contents: [
-                    {
-                        uri: uri.href,
-                        text: JSON.stringify(tips, null, 2),
-                        mimeType: "application/json"
-                    }
-                ]
-            };
-        } catch (error) {
-            return {
-                contents: [
-                    {
-                        uri: uri.href,
-                        text: JSON.stringify({ error: error?.message ?? String(error) }),
-                        mimeType: "application/json"
-                    }
-                ]
-            };
-        }
-    }
-)
-
-server.prompt(
-    "prompt-verificador-password",
-    "prompt para solicitar verificación de password",
-    {
-        password: z.string()
-    }, (params) => {
+/// Tool para verificar passwords
+server.tool("verificar-password", "analiza tu password y verifica su calidad", {
+    password: z.string(),
+}, {
+    /// pasa mensajes al LLM
+    title: "verificar password",
+    readOnlyHint: true, // Describe que no es solo lectura
+    destructiveHint: false, // esto no destruye nada, no manda alerta
+    idempotentHint: false, // si ejecuta muchas veces esto pasa algo? 
+    openWorldHint: true, // esto es algo que accede datos externos a lo que hacemos?
+}, (params) => {
+    try {
+        const calidad = verificarPassword(params);
         return {
-            messages: [
-                {
-                    role: "user",
-                    content: {
-                        type: "text",
-                        text: `Analiza la calidad del password "${params.password}".
-Sugiere reglas basadas en las guías OWASP. `
-                    }
-                }
+            content: [
+                { type: "text", text: `Tu password es de calidad ${calidad}.` }
             ]
-        }
+        };
     }
-)
+    catch (error) {
+        return {
+            content: [
+                { type: "text", text: `error : ${error.message}` }
+            ]
+        };
+    }
+    return {};
+});
+
 
 function verificarPassword(params) {
     const password = params.password;
@@ -135,11 +73,16 @@ function verificarPassword(params) {
     }
 
     // Clasificar por nivel
-    if (nivel <= 1) return "débil";
-    if (nivel <= 3) return "media";
-    return "fuerte";
+    if (nivel <= 1) {
+        return "débil";
+    } else if (nivel <= 3) {
+        return "media";
+    } else {
+        return "fuerte";
+    }
 }
 
+/// Inicia el servidor
 async function main() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
