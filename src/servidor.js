@@ -12,7 +12,8 @@ const server = new McpServer({
     version: "1.0.0",
     capabilities: {
         tools: {},
-        resources: {}
+        resources: {},
+        prompt: {}
     }
 });
 
@@ -79,6 +80,27 @@ server.resource(
                     }
                 ]
             };
+        }
+    }
+)
+
+server.prompt(
+    "prompt-verificador-password",
+    "prompt para solicitar verificación de password",
+    {
+        password: z.string()
+    }, (params) => {
+        return {
+            messages: [
+                {
+                    role: "user",
+                    content: {
+                        type: "text",
+                        text: `Analiza la calidad del password "${params.password}".
+Sugiere reglas basadas en las guías OWASP. `
+                    }
+                }
+            ]
         }
     }
 )
