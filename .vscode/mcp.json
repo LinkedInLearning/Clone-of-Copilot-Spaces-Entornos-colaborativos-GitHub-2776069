@@ -4,7 +4,7 @@
             "command": "npx",
             "args": [
                 "-y",
-                "@soycarlossolis/mcp-verificar-password",
+                "/RUTA_EN_TU_EQUIPO/src/servidor.js",
             ]
         }
     }
