@@ -5,7 +5,8 @@
   "main": "/src/servidor.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./src/servidor.js"
+    "start": "node ./src/servidor.js",
+    "inspect": "set DANGEROUSLY_OMIT_AUTH=true && npx @modelcontextprotocol/inspector npm run start"
   },
   "keywords": [],
   "author": "Carlos Solis",

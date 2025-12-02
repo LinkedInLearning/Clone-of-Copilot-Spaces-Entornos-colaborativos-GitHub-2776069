@@ -8,7 +8,7 @@ const server = new McpServer({
     version: "1.0.0",
     capabilities: {
         tools: {},
-    },
+    }
 });
 
 server.tool(
@@ -40,7 +40,8 @@ server.tool(
             };
         }
 
-    });
+    }
+)
 
 
 function verificarPassword(params) {
